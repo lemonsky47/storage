@@ -1,8 +1,8 @@
-name: Mirror upstream repo
+name: Mirror upstream into storage branch
 
 on:
   schedule:
-    - cron: "0 0 * * *"   # once per day (UTC)
+    - cron: "0 0 * * *"   # once per day
   workflow_dispatch:
 
 jobs:
@@ -10,26 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout mirror repo
+      - name: Checkout repo (main branch with workflow)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Add upstream remote
+      - name: Add upstream
         run: |
-          git remote add upstream https://github.com/gn-math/html.git || true
+          git remote add upstream https://github.com/gn-math/html.git
 
       - name: Fetch upstream
         run: |
           git fetch upstream --prune
 
-      - name: Mirror branches
+      - name: Update storage branch
         run: |
-          for branch in $(git branch -r | grep upstream/ | grep -v HEAD); do
-            git branch --track "${branch#upstream/}" "$branch" || true
-          done
-
-      - name: Push to mirror
-        run: |
-          git push --all origin
-          git push --tags origin
+          git checkout -B storage upstream/main
+          git push origin storage --force
