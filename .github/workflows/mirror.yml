@@ -1,0 +1,35 @@
+name: Mirror upstream repo
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # once per day (UTC)
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout mirror repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/gn-math/html.git || true
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream --prune
+
+      - name: Mirror branches
+        run: |
+          for branch in $(git branch -r | grep upstream/ | grep -v HEAD); do
+            git branch --track "${branch#upstream/}" "$branch" || true
+          done
+
+      - name: Push to mirror
+        run: |
+          git push --all origin
+          git push --tags origin
