@@ -17,7 +17,7 @@ jobs:
 
       - name: Add upstream
         run: |
-          git remote add upstream https://github.com/gn-math/html.git
+          git remote add upstream https://github.com/freebuisness/html.git
 
       - name: Fetch upstream
         run: |
